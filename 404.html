@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电商军师</title>
+  <script>
+    // 将404重定向到index.html，让Vue Router处理
+    const path = window.location.pathname.replace(/^\/E-commerce-Strategist/, '') || '/';
+    window.location.replace('/E-commerce-Strategist/index.html' + (path !== '/' ? path : '') + window.location.search + window.location.hash);
+  </script>
+</head>
+<body>
+  <p>页面加载中...</p>
+  <p>如果页面没有自动跳转，请 <a href="/E-commerce-Strategist/index.html">点击这里</a> 访问首页。</p>
+</body>
+</html>
