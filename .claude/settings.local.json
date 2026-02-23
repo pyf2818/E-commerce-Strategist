@@ -25,7 +25,13 @@
       "Bash(test:*)",
       "Bash(grep:*)",
       "Bash(netstat:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git push:*)",
+      "Bash(vercel:*)",
+      "Bash(cat:*)",
+      "Bash(VERCEL_SKIP_GIT_LINK=true vercel:*)",
+      "Bash(head:*)",
+      "Bash(echo \"Testing deployment...\" && sleep 10 && curl -s -o /dev/null -w \"%{http_code}\" https://ecommerce-strategist.vercel.app/ 2>&1)"
     ]
   }
 }
