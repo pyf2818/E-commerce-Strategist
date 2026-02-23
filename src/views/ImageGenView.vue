@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useAIStore, useContentStore } from '@/stores'
 import ModelSelector from '@/components/common/ModelSelector.vue'
+import { logger } from '@/utils/logger'
 
 const aiStore = useAIStore()
 const contentStore = useContentStore()
@@ -106,7 +107,7 @@ const generateImage = async () => {
     const imageService = aiStore.getImageService()
     
     // 调试：显示当前配置
-    console.log('图像生成配置:', {
+    logger.debug('图像生成配置:', {
       provider: aiStore.config.image.provider,
       model: aiStore.config.image.model,
       baseUrl: aiStore.config.image.baseUrl,

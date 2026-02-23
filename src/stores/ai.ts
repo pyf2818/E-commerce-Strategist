@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { AIConfig, AIProvider, ModelType, ModelConfig } from '@/types'
+import { logger } from '@/utils/logger'
 import { 
   DEFAULT_AI_CONFIG, 
   TEXT_PROVIDER_DEFAULTS, 
@@ -126,7 +127,7 @@ export const useAIStore = defineStore('ai', () => {
     const newApiKey = storedApiKey || ''
 
     if (import.meta.env.DEV) {
-      console.log('[AIStore] setProvider:', {
+      logger.debug('[AIStore] setProvider:', {
         type,
         provider,
         storedBaseUrl,

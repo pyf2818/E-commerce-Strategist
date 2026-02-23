@@ -6,6 +6,7 @@ import { getSystemPrompt, createUserPrompt } from '@/services/prompts'
 import type { ContentType, Platform, ContentTypeConfig } from '@/types'
 import ModelSelector from '@/components/common/ModelSelector.vue'
 import { marked } from 'marked'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,7 +36,7 @@ const loadUserTemplates = () => {
       userTemplates.value = JSON.parse(stored)
     }
   } catch (e) {
-    console.error('加载用户模板失败:', e)
+    logger.error('加载用户模板失败:', e)
   }
 }
 
@@ -110,7 +111,7 @@ onMounted(() => {
       // 清除URL参数
       router.replace({ path: route.path })
     } catch (e) {
-      console.error('解析模板数据失败:', e)
+      logger.error('解析模板数据失败:', e)
     }
   }
 })

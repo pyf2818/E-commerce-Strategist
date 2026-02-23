@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAIStore } from '@/stores'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const aiStore = useAIStore()
@@ -26,7 +27,7 @@ const loadUserTemplates = () => {
       userTemplates.value = JSON.parse(stored)
     }
   } catch (e) {
-    console.error('加载用户模板失败:', e)
+    logger.error('加载用户模板失败:', e)
   }
 }
 

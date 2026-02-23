@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useAIStore } from '@/stores'
 import type { AIProvider, ModelType } from '@/types'
+import { logger } from '@/utils/logger'
 import {
   PROVIDER_NAMES,
   PROVIDER_LINKS,
@@ -129,7 +130,7 @@ onMounted(() => {
       }
     })
   } catch (error) {
-    console.error('Failed to initialize customBaseUrl state:', error)
+    logger.error('Failed to initialize customBaseUrl state:', error)
   }
 })
 

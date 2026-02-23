@@ -1,11 +1,9 @@
 import type { ModelConfig, ModelType, ChatMessage, AIResponse } from '@/types'
+import { logger } from '@/utils/logger'
 
 // CORS 代理地址 - 解决浏览器跨域限制
-// 国内用户如果无法访问公共代理，可以：
-// 1. 留空使用 DeepSeek（支持跨域）
-// 2. 安装浏览器扩展 "Allow CORS" 或 "CORS Unblock"
-// 3. 自建代理服务
-const CORS_PROXY = ''
+// 优先级: VITE_CORS_PROXY (环境变量) > Vercel 同源代理 > 默认空
+const CORS_PROXY = import.meta.env.VITE_CORS_PROXY || (typeof window !== 'undefined' && window.location.hostname === 'your-vercel-app.vercel.app' ? '/api/proxy' : '')
 
 /**
  * AI 服务类 - 支持多平台 API 调用
@@ -87,14 +85,12 @@ export class AIService {
         ? [{ role: 'system' as const, content: systemPrompt }, ...messages]
         : messages
 
-      if (import.meta.env.DEV) {
-        console.log('[AIService] 发送请求:', {
-          provider: this.config.provider,
-          model: this.config.model,
-          baseUrl: this.config.baseUrl,
-          messageCount: allMessages.length
-        })
-      }
+      logger.debug('发送请求:', {
+        provider: this.config.provider,
+        model: this.config.model,
+        baseUrl: this.config.baseUrl,
+        messageCount: allMessages.length
+      })
 
       switch (this.config.provider) {
         case 'openai':
@@ -111,7 +107,7 @@ export class AIService {
           return { success: false, error: '不支持的 API 提供商' }
       }
     } catch (error) {
-      console.error('Chat error:', error)
+      logger.error('Chat error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '请求失败'
@@ -217,7 +213,7 @@ export class AIService {
         }
       }
     } catch (error) {
-      console.error('OpenAI compatible API error:', error)
+      logger.error('OpenAI compatible API error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '请求失败'
@@ -267,7 +263,7 @@ export class AIService {
         }
       }
     } catch (error) {
-      console.error('Zhipu API error:', error)
+      logger.error('Zhipu API error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '请求失败'
@@ -320,7 +316,7 @@ export class AIService {
         }
       }
     } catch (error) {
-      console.error('Qwen API error:', error)
+      logger.error('Qwen API error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '请求失败'
@@ -441,7 +437,7 @@ export class AIService {
         content: '图像生成成功'
       }
     } catch (error) {
-      console.error('Zhipu image generation error:', error)
+      logger.error('Zhipu image generation error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '图像生成失败'
@@ -492,7 +488,7 @@ export class AIService {
         content: '图像生成成功'
       }
     } catch (error) {
-      console.error('Qwen image generation error:', error)
+      logger.error('Qwen image generation error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '图像生成失败'
@@ -507,7 +503,7 @@ export class AIService {
     try {
       const url = this.getApiUrl('/images/generations')
       const isDev = import.meta.env.DEV
-      console.log('请求硅基流动API:', { url, model: this.config.model, isDev, provider: this.config.provider })
+      logger.debug('请求硅基流动API:', { url, model: this.config.model, isDev, provider: this.config.provider })
       
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 60000)
@@ -531,8 +527,8 @@ export class AIService {
       
       clearTimeout(timeoutId)
       const responseText = await response.text()
-      console.log('硅基流动响应状态:', response.status)
-      console.log('硅基流动响应内容:', responseText.slice(0, 500))
+      logger.debug('硅基流动响应状态:', response.status)
+      logger.debug('硅基流动响应内容:', responseText.slice(0, 500))
       
       if (!response.ok || !responseText) {
         let errorMsg = `API错误 ${response.status}`
@@ -544,7 +540,7 @@ export class AIService {
         } catch {
           errorMsg = responseText || errorMsg
         }
-        console.error('硅基流动 API 错误:', errorMsg)
+        logger.error('硅基流动 API 错误:', errorMsg)
         return { success: false, error: errorMsg }
       }
 
@@ -552,7 +548,7 @@ export class AIService {
       try {
         data = JSON.parse(responseText)
       } catch {
-        console.error('JSON解析失败, 响应内容:', responseText.slice(0, 200))
+        logger.error('JSON解析失败, 响应内容:', responseText.slice(0, 200))
         return { success: false, error: '响应格式错误: ' + responseText.slice(0, 100) }
       }
       
@@ -560,13 +556,13 @@ export class AIService {
       const imageUrl = (data.images as Array<{url?: string}>)?.[0]?.url || (data.data as Array<{url?: string}>)?.[0]?.url || (data.output as {url?: string})?.url
       
       if (!imageUrl) {
-        console.error('硅基流动响应格式:', data)
+        logger.error('硅基流动响应格式:', data)
         return { success: false, error: '未获取到图片URL，响应: ' + JSON.stringify(data).slice(0, 200) }
       }
 
       return { success: true, imageUrl, content: '图像生成成功' }
     } catch (error) {
-      console.error('图像生成异常:', error)
+      logger.error('图像生成异常:', error)
       return { success: false, error: error instanceof Error ? error.message : '图像生成失败' }
     }
   }
@@ -607,7 +603,7 @@ export class AIService {
         content: '视频生成成功'
       }
     } catch (error) {
-      console.error('Zhipu video generation error:', error)
+      logger.error('Zhipu video generation error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '视频生成失败'
@@ -659,7 +655,7 @@ export class AIService {
         content: '视频生成成功'
       }
     } catch (error) {
-      console.error('Qwen video generation error:', error)
+      logger.error('Qwen video generation error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '视频生成失败'
@@ -674,7 +670,7 @@ export class AIService {
     const url = this.getApiUrl('/video/generations')
 
     if (import.meta.env.DEV) {
-      console.log('[SiliconFlow] 视频生成请求:', {
+      logger.debug('[SiliconFlow] 视频生成请求:', {
         url,
         model: this.config.model,
         prompt: prompt.slice(0, 50) + (prompt.length > 50 ? '...' : ''),
@@ -711,7 +707,7 @@ export class AIService {
           // 不是JSON，使用原始文本（截断避免过长）
           errorMsg = responseText.slice(0, 200) || errorMsg
         }
-        console.error('[SiliconFlow] 视频生成失败:', errorMsg)
+        logger.error('[SiliconFlow] 视频生成失败:', errorMsg)
         return { success: false, error: errorMsg }
       }
 
@@ -728,7 +724,7 @@ export class AIService {
         content: '视频生成成功'
       }
     } catch (error) {
-      console.error('SiliconFlow video generation error:', error)
+      logger.error('SiliconFlow video generation error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : '视频生成失败'

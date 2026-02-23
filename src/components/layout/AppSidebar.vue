@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { useAIStore } from '@/stores'
+import { logger } from '@/utils/logger'
 
 interface Props {
   collapsed: boolean
@@ -41,7 +42,7 @@ const navigate = async (path: string) => {
   try {
     await router.push(path)
   } catch (error) {
-    console.error('Navigation error:', error)
+    logger.error('Navigation error:', error)
   }
 }
 </script>
